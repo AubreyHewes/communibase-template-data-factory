@@ -45,28 +45,30 @@ process.env.COMMUNIBASE_KEY = "test123456789012345678901234567890";
 setupDatabase()
   .then(bootServer)
   .then(serverProcess =>
-    require("./runTests/loadFixtures.js")().then(() => serverProcess)
-  )
-  .then(
-    serverProcess => {
-      // var command = "mocha --debug-brk test/tests/documentReference.js";
-      const isDebugged =
-        typeof v8debug === "object" ||
-        /--debug|--inspect/.test(process.execArgv.join(" "));
-      const mochaProcess = ChildProcess.exec(
-        `mocha${isDebugged ? " --inspect" : ""} test/tests/`,
-        { env: process.env }
-      );
-      mochaProcess.stdout.pipe(process.stdout);
-      mochaProcess.stderr.pipe(process.stderr);
-      mochaProcess.on("close", code => {
-        serverProcess.kill();
-        process.exit(code);
-      });
-    },
-    err => {
-      console.error(err);
-      console.log(err.stack);
-      process.exit(1);
-    }
+    require("./runTests/loadFixtures.js")()
+      .then(() => serverProcess)
+      .then(
+        serverProcess => {
+          // var command = "mocha --debug-brk test/tests/documentReference.js";
+          const isDebugged =
+            typeof v8debug === "object" ||
+            /--debug|--inspect/.test(process.execArgv.join(" "));
+          const mochaProcess = ChildProcess.exec(
+            `mocha${isDebugged ? " --inspect" : ""} test/tests/`,
+            { env: process.env }
+          );
+          mochaProcess.stdout.pipe(process.stdout);
+          mochaProcess.stderr.pipe(process.stderr);
+          mochaProcess.on("close", code => {
+            serverProcess.kill();
+            process.exit(code);
+          });
+        },
+        err => {
+          serverProcess.exit();
+          console.error(err);
+          console.log(err.stack);
+          process.exit(1);
+        }
+      )
   );
