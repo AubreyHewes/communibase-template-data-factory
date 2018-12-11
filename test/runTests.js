@@ -1,6 +1,7 @@
 const setupDatabase = require("./runTests/setupDatabase.js");
 const bootServer = require("./runTests/bootServer.js");
 const ChildProcess = require("child_process");
+const path = require("path");
 
 // setup proper environment vars and run casper
 let dbHost = "localhost";
@@ -54,7 +55,9 @@ setupDatabase()
             typeof v8debug === "object" ||
             /--debug|--inspect/.test(process.execArgv.join(" "));
           const mochaProcess = ChildProcess.exec(
-            `mocha${isDebugged ? " --inspect" : ""} test/tests/`,
+            `${path.resolve(__dirname, "..", "node_modules/.bin/mocha")} ${
+              isDebugged ? " --inspect" : ""
+            } test/tests/`,
             { env: process.env }
           );
           mochaProcess.stdout.pipe(process.stdout);
