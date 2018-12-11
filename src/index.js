@@ -1,8 +1,11 @@
 /* eslint-disable global-require */
 const Promise = require("bluebird");
 const _ = require("lodash");
+const { Connector } = require("communibase-connector-js");
 
-let debug = false;
+let debug = process.env.CB_TPL_DATA_FACTORY_DEBUG || false;
+
+debug = true;
 
 /**
  * Gets all requested paths based on the given template. When inserting:
@@ -108,6 +111,23 @@ function _getPaths(node) {
         });
       });
       break;
+
+    // Handlebars@^4
+    case "mustachestatement":
+      // E.g. 'date' / 'debtor.debtorNumber'
+      result.push(node.path.original);
+      break;
+    case "blockstatement":
+      // E.g. #each / #if / #compare / '#invoiceItems' / '#ifIsCredit'
+      node.params.forEach(param => {
+        _getPaths(param).forEach(variable => {
+          result.push(variable);
+        });
+      });
+      break;
+    case "pathexpression":
+      result.push(node.original);
+      break;
   }
 
   return result;
@@ -149,7 +169,7 @@ function getCorrespondingSerializer(entityTypeTitle, propertyName) {
 }
 
 module.exports = function exports(config) {
-  this.cbc = config.cbc || require("communibase-connector-js");
+  this.cbc = config.cbc || new Connector(process.env.COMMUNIBASE_KEY);
   this.stxt = config.stxt || {};
 
   /**

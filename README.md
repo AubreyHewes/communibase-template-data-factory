@@ -32,9 +32,3 @@ Extra (custom) serializers can be added to the factory using the `addSerializers
 ## Debugging?
 
 See runTest.js line 44, attach a debugger from the IDE to mocha
-
- ### PLEASE NOTE ###
-
- This library is compatible with Handlebars 2.0.0
-
- Later versions of Handlebars have a different AST and do not function properly!

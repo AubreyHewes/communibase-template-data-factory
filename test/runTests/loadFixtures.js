@@ -1,8 +1,7 @@
 const Promise = require("bluebird");
 const fs = require("fs");
-const cbc = require("communibase-connector-js").clone(
-  process.env.COMMUNIBASE_KEY
-);
+const { Connector } = require("communibase-connector-js");
+const cbc = new Connector(process.env.COMMUNIBASE_KEY);
 
 module.exports = () => {
   const personData = JSON.parse(
